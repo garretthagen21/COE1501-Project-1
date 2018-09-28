@@ -25,9 +25,9 @@ public class DictTest
 		String st;
 		StringBuilder sb;
 		DictInterface D;
-		//if (dictType.equals("DLB"))
-			//D = new DLB();
-		//else
+		if (dictType.equals("DLB"))
+			D = new DLB();
+		else
 			D = new MyDictionary();
 		
 		while (fileScan.hasNext())

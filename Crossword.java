@@ -16,7 +16,7 @@ public class Crossword{
 		//String dictType = args[0];
 		//String boardFile = args[1];
 		String dictType = "MyDict";
-		String boardFile = "test4c.txt";
+		String boardFile = "test6b.txt";
 		
 		Scanner fileScan = new Scanner(new FileInputStream("dict8.txt"));
 		Scanner boardScan = new Scanner(new FileInputStream("Tests/"+boardFile));
