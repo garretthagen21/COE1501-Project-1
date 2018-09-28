@@ -15,7 +15,7 @@ public class Crossword{
 		//String dictType = args[0];
 		//String boardFile = args[1];
 		String dictType = "MyDict";
-		String boardFile = "test3a.txt";
+		String boardFile = "test4f.txt";
 		
 		Scanner fileScan = new Scanner(new FileInputStream("dict8.txt"));
 		Scanner boardScan = new Scanner(new FileInputStream("Tests/"+boardFile));
@@ -70,8 +70,7 @@ public class Crossword{
 				
 				
 				//All of our conditions have been met so the character placement is valid. Recurses
-				if(safe(i,j,endIndex)) {	
-					
+				if(safe(i,j,endIndex)) {			
 					int iNext = 0;
 					int jNext = 0;
 					//Solution found
@@ -100,121 +99,74 @@ public class Crossword{
 			return;
 		}
 	private static boolean safe(int i, int j,int endIndex) {	
-		StringBuilder rowString;
-		StringBuilder colString;
-		int colStart = 0,colEnd = i;
-		int rowStart = 0,rowEnd = j;
+		StringBuilder rowString = new StringBuilder("");
+		StringBuilder colString = new StringBuilder("");
 		
+		int colFirst = 0;
+		int colLast = i;
+		int rowFirst = 0;
+		int rowLast = j;
+		boolean dashEncountered = false;
 		
 		//Substring is (inclusive,exclusive) so we want to omit the dash when we build our string to check
-		if(colStr[j].charAt(i) != '-')
-			colEnd++;
-			rowEnd++; 
-		
-		for(int start = i; start>-1;start--) {
-			if(colStr[j].charAt(start) == '-' && start != i) {
-					colStart = start+1;
-					break;
-				}			
+		if(rowStr[i].charAt(j) == '-') {
+			if(j != 0)
+				rowLast--;
+			if(i !=0)
+				colLast--;
+			
+			dashEncountered = true;	
 		}
-		for(int start = j; start>-1;start--) {
-			if(rowStr[i].charAt(start) == '-' && start != j) {
-					rowStart = start+1;
-					break;
-				}			
-		}
-		rowString = new StringBuilder(rowStr[i].substring(rowStart,rowEnd));
-		colString = new StringBuilder(colStr[i].substring(colStart,colEnd));
-		System.out.println(rowString.toString());
-		System.out.println(colString.toString());
 		
-		if (i < endIndex){ 
-			/*if(colStr[j].charAt(i) == '-') {
-				int startingDash = 0;
-				//Start at the current dash and work backwards til we see another dash
-				for(int q = i; q>-1;q--) {
-					if(colStr[j].charAt(q) == '-')
-						startingDash = q;
-						break;
+		//Get the starting index for each string. 
+		//Will either be index of most recent '-' or index 0 of StringBuilder
+		for(int q = rowLast; q>=0;q--) {
+			if(rowStr[i].charAt(q) == '-') {
+					break;
 				}
-				String subWord = colStr[j].substring(startingDash,i);
-				System.out.print(subWord+":");
-				if(!subWord.equals("")){
-						if(!(theDictionary.searchPrefix(new StringBuilder(subWord)) > 1)){
-							System.out.print("FAILED\n");
-							return false;			
-						}
-				    }
-				System.out.print("PASSED\n");
-				}*/
-			if(theDictionary.searchPrefix(colString) < 1){
+		   rowString.append(rowStr[i].charAt(q));
+		}
+		for(int q = colLast; q>=0;q--) {
+			if(colStr[j].charAt(q) == '-') {
+					break;
+				}
+		   colString.append(colStr[j].charAt(q));
+		}
+		//We added the letters in opposite order so now we must reverse them
+		rowString.reverse();
+		colString.reverse();
+		
+		
+		//If we reach an end index or or current character is a '-' the StringBuilders 
+		//must be a word or empty
+		if(j == endIndex || dashEncountered){	
+			if(!(theDictionary.searchPrefix(rowString) > 1) && !rowString.toString().equals("")) { 
 				return false;
-			}
+			}				
 		}
-		if (j < endIndex){ 
-			/*if(rowStr[i].charAt(j) == '-') {
-				int startingDash = 0;
-				//Start at the current dash and work backwards til we see another dash
-				for(int q = j; q>-1;q--) {
-					if(rowStr[i].charAt(q) == '-')
-						startingDash = q;
-						break;
-				}
-
-				String subWord = rowStr[i].substring(startingDash,j);
-				System.out.print(subWord+":");
-				if(!subWord.equals("")){
-						if(!(theDictionary.searchPrefix(new StringBuilder(subWord)) > 1)){
-							System.out.print("FAILED\n");
-							return false;
-						}
-				    }
-				System.out.print("PASSED\n");
-
-				}*/
+		else {
 			if(theDictionary.searchPrefix(rowString) < 1){
 				return false;
 			}
 		}
-	
-		if(j == endIndex){
-			/*int recentDash = rowStr[i].lastIndexOf("-");
-			if(recentDash != -1) {
-				String subWord = rowStr[i].substring(recentDash,endIndex);
-				System.out.print(subWord+":");
-				if(!subWord.equals("")){
-						if(!(theDictionary.searchPrefix(new StringBuilder(subWord)) > 1)){
-							System.out.print("FAILED\n");
-							return false;
-						}
-				    }
-				System.out.print("PASSED\n");
-				}*/
-			if(!(theDictionary.searchPrefix(rowString) > 1)) { 
+		if(i == endIndex || dashEncountered){
+			if(!(theDictionary.searchPrefix(colString) > 1)  && !colString.toString().equals("")) { 
+				return false;
+			}	
+		}
+		else {
+			if(theDictionary.searchPrefix(colString) < 1){
 				return false;
 			}
-				
+		}
+		
+		/*if (i < endIndex && !dashEncountered){ 
 			
 		}
-		if(i == endIndex){
-			/*int recentDash = colStr[j].lastIndexOf("-");
-			if(recentDash != -1) {
-				String subWord = colStr[j].substring(recentDash,endIndex);
-				System.out.print(subWord+":");
-				if(!subWord.equals("")){
-						if(!(theDictionary.searchPrefix(new StringBuilder(subWord)) > 1)){
-							System.out.print("FAILED\n");
-							return false;
-						}
-				    }	
-				System.out.print("PASSED\n");
-				}*/
-			if(!(theDictionary.searchPrefix(colString) > 1)) { 
-				return false;
-			}
-				
+		if (j < endIndex && !dashEncountered){ 
 			
-		}
+		}*/
+		
 		return true;
 	}
 	private static void printGameboard() {
