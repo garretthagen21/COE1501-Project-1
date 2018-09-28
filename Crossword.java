@@ -9,23 +9,27 @@ public class Crossword{
 		static char gameBoard [][] = null;
 		static char [] alphabet = {'a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z'};
 		static DictInterface theDictionary;
+		static boolean DLBMode = false;
 	
 	public static void main(String args[]) throws FileNotFoundException { 
 		
 		//String dictType = args[0];
 		//String boardFile = args[1];
 		String dictType = "MyDict";
-		String boardFile = "test4f.txt";
+		String boardFile = "test4c.txt";
 		
 		Scanner fileScan = new Scanner(new FileInputStream("dict8.txt"));
 		Scanner boardScan = new Scanner(new FileInputStream("Tests/"+boardFile));
 		
 		
 		// Create the dictionary
-		if (dictType.equals("DLB"))
+		if (dictType.equals("DLB")) {
 			theDictionary = new MyDictionary(); //new DLB();
-		else
+			DLBMode = true;
+		}
+		else {
 			theDictionary = new MyDictionary();
+		}
 		
 		while(fileScan.hasNextLine()) {
 			theDictionary.add(fileScan.nextLine());
@@ -49,7 +53,12 @@ public class Crossword{
 
 			}
 		}
+		
+		fileScan.close();
+		boardScan.close();
+		
 		buildCrosswordPuzzle(0,0,boardSize-1);
+		exitPuzzle();
 	}
 		
 	
@@ -76,7 +85,8 @@ public class Crossword{
 					//Solution found
 					if(j==endIndex && i==endIndex){
 						printGameboard();
-						//System.exit(0);
+						if(!DLBMode)
+						  exitPuzzle();
 					}	
 					
 					else { //Reached the end of the row (i.e used all columns) so move to the next row and reset j
@@ -99,23 +109,19 @@ public class Crossword{
 			return;
 		}
 	private static boolean safe(int i, int j,int endIndex) {	
-		StringBuilder rowString = new StringBuilder("");
-		StringBuilder colString = new StringBuilder("");
+		StringBuilder rowString = new StringBuilder();
+		StringBuilder colString = new StringBuilder();
 		
-		int colFirst = 0;
 		int colLast = i;
-		int rowFirst = 0;
 		int rowLast = j;
 		boolean dashEncountered = false;
 		
-		//Substring is (inclusive,exclusive) so we want to omit the dash when we build our string to check
+		//Current character is a dash so we dont want to include it when we build the string were checking
+		//If a dash is at the 0th index then
 		if(rowStr[i].charAt(j) == '-') {
-			if(j != 0)
 				rowLast--;
-			if(i !=0)
 				colLast--;
-			
-			dashEncountered = true;	
+			    dashEncountered = true;	
 		}
 		
 		//Get the starting index for each string. 
@@ -126,7 +132,7 @@ public class Crossword{
 				}
 		   rowString.append(rowStr[i].charAt(q));
 		}
-		for(int q = colLast; q>=0;q--) {
+		for(int q = colLast;q>=0;q--) {
 			if(colStr[j].charAt(q) == '-') {
 					break;
 				}
@@ -137,35 +143,33 @@ public class Crossword{
 		colString.reverse();
 		
 		
-		//If we reach an end index or or current character is a '-' the StringBuilders 
-		//must be a word or empty
+		/*Condition 1: If we reach an end index or or current character is a '-' the SB must be a word 
+		 * or "" (back to back '-' characters OR '-' at index 0)
+		 */
+		
+		/*Condition 2: If we are not an end index AND the current character is not a '-' the SB must be
+		 * atleast a prefix
+		 */
+		
+		//Check above conditions for rowStr
 		if(j == endIndex || dashEncountered){	
-			if(!(theDictionary.searchPrefix(rowString) > 1) && !rowString.toString().equals("")) { 
+			if(!(rowString.toString().equals("") || (theDictionary.searchPrefix(rowString) > 1))) { 
 				return false;
 			}				
 		}
-		else {
-			if(theDictionary.searchPrefix(rowString) < 1){
+		else if(theDictionary.searchPrefix(rowString) < 1){
 				return false;
-			}
 		}
+		
+		//Check above conditions for colStr
 		if(i == endIndex || dashEncountered){
-			if(!(theDictionary.searchPrefix(colString) > 1)  && !colString.toString().equals("")) { 
+			if(!(colString.toString().equals("") || (theDictionary.searchPrefix(colString) > 1))) { 
 				return false;
 			}	
 		}
-		else {
-			if(theDictionary.searchPrefix(colString) < 1){
-				return false;
-			}
+		else if(theDictionary.searchPrefix(colString) < 1){
+			return false;
 		}
-		
-		/*if (i < endIndex && !dashEncountered){ 
-			
-		}
-		if (j < endIndex && !dashEncountered){ 
-			
-		}*/
 		
 		return true;
 	}
@@ -180,6 +184,10 @@ public class Crossword{
 		}
 	}
 	
+	private static void exitPuzzle() {
+		System.out.println("\n\nSearching complete! " +solutionNumber+" solutions were found.");
+		System.exit(0);
+	}
 	
 	
 }
