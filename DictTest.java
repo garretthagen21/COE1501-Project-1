@@ -37,7 +37,7 @@ public class DictTest
 		}
 
 		String [] tests = {"abc", "abe", "abet", "abx", "ace", "acid", "hives",
-						   "iodin", "inval", "zoo", "zool", "zurich"};
+						   "iodin", "inval", "zoo", "zool", "zurich",""};
 		for (int i = 0; i < tests.length; i++)
 		{
 			sb = new StringBuilder(tests[i]);

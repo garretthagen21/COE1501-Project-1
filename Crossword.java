@@ -15,8 +15,8 @@ public class Crossword{
 		
 		//String dictType = args[0];
 		//String boardFile = args[1];
-		String dictType = "MyDict";
-		String boardFile = "test6b.txt";
+		String dictType = "DLB";
+		String boardFile = "test5a.txt";
 		
 		Scanner fileScan = new Scanner(new FileInputStream("dict8.txt"));
 		Scanner boardScan = new Scanner(new FileInputStream("Tests/"+boardFile));
@@ -63,50 +63,59 @@ public class Crossword{
 		
 	
 	public static void buildCrosswordPuzzle(int i,int j,int endIndex) {
-			char boardChar = gameBoard[i][j];
+			int iNext = 0;
+			int jNext = 0;
+			char boardChar;
 			
-			for(int l=0;l<26;l++) {
+			//Determine what the next search index should be
+			if(i>endIndex) {
+				printGameboard();
+				if(!DLBMode) {
+					exitPuzzle();
+				}
+				return;
+			}
+			else if(j==endIndex) {
+				iNext = i+1;
+				jNext = 0;
+			}
+			else { 
+				iNext = i;
+				jNext = j+1;	
+			}
+			
+			boardChar = gameBoard[i][j];
+			
+			//Add the character is immutable so add it immediately. If valid move forward, if not backtrack
+			if(boardChar != '+') {
+				colStr[j].append(boardChar);
+				rowStr[i].append(boardChar);
 				
-				//Attempt to place the letter
-				if(boardChar == '+') {
+				if(safe(i,j,endIndex)) {			
+					buildCrosswordPuzzle(iNext,jNext,endIndex);
+				}
+				
+				rowStr[i].deleteCharAt(j);
+				colStr[j].deleteCharAt(i);
+			}
+			//Try all characters
+			else {
+				for(int l=0;l<26;l++) {
+					//Attempt to place the letter
 					colStr[j].append(alphabet[l]);
 					rowStr[i].append(alphabet[l]);
-				}
-				else {
-					colStr[j].append(boardChar);
-					rowStr[i].append(boardChar);
-				}
-				
-				
-				//All of our conditions have been met so the character placement is valid. Recurses
-				if(safe(i,j,endIndex)) {			
-					int iNext = 0;
-					int jNext = 0;
-					//Solution found
-					if(j==endIndex && i==endIndex){
-						printGameboard();
-						if(!DLBMode)
-						  exitPuzzle();
-					}	
 					
-					else { //Reached the end of the row (i.e used all columns) so move to the next row and reset j
-						if(j==endIndex) {
-							iNext = i+1;
-							jNext = 0;
-						}
-						else { 
-							iNext = i;
-							jNext = j+1;	
-						}
-						buildCrosswordPuzzle(iNext,jNext,endIndex);
-					}	
+					//All of our conditions have been met so the character placement is valid. Recurses
+					if(safe(i,j,endIndex)) {			
+						buildCrosswordPuzzle(iNext,jNext,endIndex);	
+					}
+					//Backtracking or the letter we added is invalid
+					rowStr[i].deleteCharAt(j);
+				    colStr[j].deleteCharAt(i);
 				}
-				//Either we found a solution, we are backtracking, or the letter we added is invalid
-				rowStr[i].deleteCharAt(j);
-			    colStr[j].deleteCharAt(i);
 				
 			}
-			return;
+			
 		}
 	private static boolean safe(int i, int j,int endIndex) {	
 		StringBuilder rowString = new StringBuilder();
@@ -153,21 +162,21 @@ public class Crossword{
 		
 		//Check above conditions for rowStr
 		if(j == endIndex || dashEncountered){	
-			if(!(rowString.toString().equals("") || (theDictionary.searchPrefix(rowString) > 1))) { 
+			if(!(rowString.length() == 0 || (theDictionary.searchPrefix(rowString) > 1))) { 
 				return false;
 			}				
 		}
-		else if(theDictionary.searchPrefix(rowString) < 1){
+		else if(theDictionary.searchPrefix(rowString) != 1 && theDictionary.searchPrefix(rowString) != 3){
 				return false;
 		}
 		
 		//Check above conditions for colStr
 		if(i == endIndex || dashEncountered){
-			if(!(colString.toString().equals("") || (theDictionary.searchPrefix(colString) > 1))) { 
+			if(!(colString.length() == 0 || (theDictionary.searchPrefix(colString) > 1))) { 
 				return false;
 			}	
 		}
-		else if(theDictionary.searchPrefix(colString) < 1){
+		else if(theDictionary.searchPrefix(colString) != 1 && theDictionary.searchPrefix(colString) != 3){
 			return false;
 		}
 		
