@@ -15,12 +15,18 @@ public class Crossword{
 	
 	public static void main(String args[]) throws FileNotFoundException { 
 		
-		//String dictType = args[0];
-		//String boardFile = args[1];
-		String dictType = "DLB";
-		dictType = "MyDictionary";
+		if(args.length < 2) {
+			System.out.println("You must specify 2 arguments!\nUsage: $ java Crossword <testfile.txt> <dictionary type>");
+			System.out.println("Example: $ java Crossword test3a.txt DLB");
+			System.exit(0);
+		}
+		String boardFile = args[0];
+		String dictType = args[1];
 		
-		String boardFile = "test6c.txt";
+		
+		//For use in Eclipse
+		//String dictType = "DLB";
+		//String boardFile = "test6c.txt";
 		
 		Scanner fileScan = new Scanner(new FileInputStream("dict8.txt"));
 		Scanner boardScan = new Scanner(new FileInputStream("Tests/"+boardFile));
@@ -130,10 +136,10 @@ public class Crossword{
 		}
 
 private static boolean safe(int i,int j) {	
-	/*Condition 1: If we reach an end index or or current character is a '-' the SB must be a word 
-	 * or "" (back to back '-' characters OR '-' at index 0)
+	/*Condition 1: If we reach an end index or or current character is a '-' the SB must be a word.
+	 *NOTE: If a '-' is encountered at index 0 or there are '-' at index i and index i-1 (i.e '--') this is legal too 
+
 	 */
-	
 	/*Condition 2: If we are not an end index AND the current character is not a '-' the SB must be
 	 * atleast a prefix
 	 */
@@ -141,15 +147,12 @@ private static boolean safe(int i,int j) {
 }
 
 private static boolean checkCol(int i, int j) {	
-		//StringBuilder colString = new StringBuilder();
 		int end = i;
 		int start = 0;
 		boolean dashEncountered = false;
 		
-		//Current character is a dash so we dont want to include it when we build the string were checking
-		//If a dash is at the 0th index then
-		
-		
+		//Current character is a dash so we dont want to include it when we find the bounds for the string were checking
+		//If the dash is at index 0 or there are back to back dashes return true
 		if(colStr[j].charAt(i) == '-') {
 				if(i == 0) {
 					return true;
@@ -163,8 +166,8 @@ private static boolean checkCol(int i, int j) {
 		
 		
 		
-		//Get the starting index for each string. 
-		//Will either be index of most recent '-' or index 0 of StringBuilder
+		//Get the starting index for the string
+		//Will either be index of most recent '-'+1 or index 0 of StringBuilder
 		for(int q = end; q>=0;q--) {
 			if(colStr[j].charAt(q) == '-') {
 					start = q+1;
@@ -174,7 +177,7 @@ private static boolean checkCol(int i, int j) {
 		
 		int colResult = theDictionary.searchPrefix(colStr[j],start,end);
 		
-		//Check above conditions for colStr. Must be word here
+		//Check above conditions for colStr. Must be a word in this case
 		if(i == endIndex || dashEncountered){
 			if(colResult > 1) { 
 				return true;
@@ -224,7 +227,7 @@ private static boolean checkCol(int i, int j) {
 		
 		int rowResult = theDictionary.searchPrefix(rowStr[i],start,end);
 		
-		//Must be a word or an empty string (consecutive '-' characters)
+		//Must be a word (current character is a '-' or we are at an end index)
 		if(j == endIndex || dashEncountered){	
 			if(rowResult > 1) { 
 				return true;
