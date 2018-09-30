@@ -37,7 +37,7 @@ public class DictTest
 		}
 
 		String [] tests = {"abc", "abe", "abet", "abx", "ace", "acid", "hives",
-						   "iodin", "inval", "zoo", "zool", "zurich",""};
+						   "iodin", "inval", "zoo", "zool", "zurich"};
 		for (int i = 0; i < tests.length; i++)
 		{
 			sb = new StringBuilder(tests[i]);
@@ -54,5 +54,7 @@ public class DictTest
 				case 3: System.out.println("a word and prefix");
 			}
 		}
+		int checkBounds = D.searchPrefix(new StringBuilder(tests[8]),3,3);
+		System.out.print("Checkbounds"+checkBounds);
 	}
 }
