@@ -129,6 +129,7 @@ public class Crossword{
 					//Backtracking or the letter we added is invalid
 					rowStr[i].deleteCharAt(j);
 				    colStr[j].deleteCharAt(i);
+				   
 				}
 				
 			}
